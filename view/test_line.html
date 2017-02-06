@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" /> 
+    <meta name="keywords" content="天地图山东" /> 
+    <title>天地图山东地图API－示例－在地图上添加一个多边形</title>   
+  
+    <link type="text/css" rel="stylesheet" href="http://www.sdmap.gov.cn/api/agsapi/javascript/js/esri/css/esri.css" /> 
+    <script type="text/javascript" src="http://www.sdmap.gov.cn/api/agsapi/javascript/js/init.js"></script> 
+    <script type="text/javascript"> 
+        //定义地图对象 
+        var map; 
+        //引入天地图山东矢量图层 
+        require(["esri/map", 
+        "tdlib/SDTDTLayer", 
+         "esri/geometry/Extent", 
+         "esri/geometry/Polygon", 
+         "esri/SpatialReference",  
+          "esri/symbols/SimpleLineSymbol", 
+         "esri/symbols/SimpleFillSymbol", 
+         "esri/Color", 
+         "esri/graphic", "dojo/domReady!"], 
+    function (Map, SDTDTLayer, Extent, Polygon, SpatialReference, SimpleLineSymbol, SimpleFillSymbol, Color, Graphic) { 
+        //地图初始化 
+        map = new Map("mapDiv", 
+         { 
+             logo: false, 
+             slider: false, 
+             nav: false  
+         }); 
+ 
+         //定义一个点 
+         var point = new esri.geometry.Point({ "x": 117.024, "y": 36.6878, "spatialReference": { "wkid": 4490} }); 
+         //设置该点位中心点  缩放到该级别 
+         map.centerAndZoom(point, 15); 
+ 
+           
+ 
+        //图层初始化 
+        var sdvecLayer = new SDTDTLayer(); 
+        //添加图层到地图 
+        map.addLayer(sdvecLayer); 
+          
+ 
+        var polygonSymbol = new SimpleFillSymbol( 
+            SimpleFillSymbol.STYLE_SOLID, 
+            new SimpleLineSymbol( 
+                    SimpleLineSymbol.STYLE_SOLID, 
+              new Color([0, 0, 255, 0.5]), 
+              6 
+            ), 
+            new Color([0, 0, 255, 0.25]) 
+          ); 
+ 
+        var polygon = new Polygon({ 
+            "rings": [[[117.026886463165281, 36.68899221420288], 
+             [117.027058124542241, 36.68592376708984], 
+             [117.022230148315431, 36.68594522476196], 
+             [117.022358894348141, 36.689914894104], 
+             [117.026886463165281, 36.68899221420288]]], 
+ 
+            "spatialReference": { 
+                "wkid": 4490 
+            } 
+        }); 
+ 
+        var graphic = new Graphic(polygon, polygonSymbol) 
+        map.graphics.add(graphic); 
+    } 
+    ); 
+    </script> 
+</head> 
+<body> 
+        <div id="mapDiv" style="position:absolute;width:600px; height:500px"> 
+        </div> 
+</body> 
+</html> 
+

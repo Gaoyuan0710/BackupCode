@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>jQuery WeUI</title>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="//cdn.bootcss.com/weui/0.4.3/style/weui.min.css">
+<link href="//cdn.bootcss.com/jquery-weui/0.8.2/css/jquery-weui.css" rel="stylesheet">
+<link rel="stylesheet" href="./css/demos.css">
+
+  </head>
+
+  <body ontouchstart>
+
+    <div class="weui_search_bar" id="search_bar">
+      <form class="weui_search_outer">
+        <div class="weui_search_inner">
+          <i class="weui_icon_search"></i>
+          <input type="search" class="weui_search_input" id="search_input" placeholder="搜索" required/>
+          <a href="javascript:" class="weui_icon_clear" id="search_clear"></a>
+        </div>
+        <label for="search_input" class="weui_search_text" id="search_text">
+          <i class="weui_icon_search"></i>
+          <span>搜索</span>
+        </label>
+      </form>
+      <a href="javascript:" class="weui_search_cancel" id="search_cancel">取消</a>
+  </div>
+  <script src="//cdn.bootcss.com/jquery/2.1.4/jquery.js"></script>
+
+  <script src="./js/fastclick.js"></script>
+
+<script>
+  $(function() {
+    FastClick.attach(document.body);
+  });
+</script>
+<script src="//cdn.bootcss.com/jquery-weui/0.8.2/js/jquery-weui.min.js"></script>
+
+<!--<script src="../js/jquery-weui.js"></script>-->
+
+  </body>
+</html>

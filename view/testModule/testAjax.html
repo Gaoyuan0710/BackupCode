@@ -1,0 +1,71 @@
+<!--<script type='text/javascript' src='http://ajax.useso.com/ajax/libs/jquery/1.7.2/jquery.min.js?ver=3.4.2'></script>
+--><script src="//cdn.bootcss.com/jquery/3.1.1/jquery.js"></script>
+<script type="text/javascript">
+var xmldom=null;//声明一个全局变量，用来存储xmldocument对像
+$(function(){
+    //加载完成立即获得省份信息
+    
+
+    $.ajax({
+        url:"ChinaArea.xml",
+        type:'GET',
+        dataType:"xml",
+        success: function(msg){
+            //jquery处理xml和html的方法一致
+            xmldom=msg;
+            $(msg).find("province").each(function(k, v) {
+                //k代表下标,v和this分别代表每个当前province的dom对像
+                var nm=$(this).attr("province");
+                var pid=$(this).attr("provinceID");
+                $("#province").append("<option value='"+pid+"'>"+nm+"</option>");
+            
+            });
+            }
+        });
+    });
+function getcity(){
+    //清空城市与县城
+    $("#city").empty();
+    $("#piecearea").empty();
+    //获得选中的省份value
+    var pid=$("#province").val();
+    //省份只保留前两位
+    var two_pid=pid.substr(0,2);
+    //获取xml地区城市city标签，条件是开始内容是two_pid
+    $(xmldom).find("City[CityID^="+two_pid+"]").each(function(k, v) {
+        var nm=$(this).attr("City");
+        var pid=$(this).attr("CityID");
+        $("#city").append("<option value='"+pid+"'>"+nm+"</option>");
+        getpiecearea();
+    });
+    }
+    
+function getpiecearea(){
+    //清空县城
+    $("#piecearea").empty();
+    //获得选中的城市value
+    var cid=$("#city").val();
+    //省份只保留前两位
+    var four_cid=cid.substr(0,4);
+    //获取xml地区城市city标签，条件是开始内容是two_pid
+    console.log($(xmldom).find("Piecearea[PieceareaID^="+four_cid+"]"));
+    $(xmldom).find("Piecearea[PieceareaID^="+four_cid+"]").each(function(k, v) {
+        var nm=$(this).attr("Piecearea");
+        var pid=$(this).attr("PieceareaID");
+        $("#piecearea").append("<option value='"+pid+"'>"+nm+"</option>");
+        
+    });
+    }
+    
+</script>
+<label for="province">省份</label>
+<select name="province" id="province" onChange="getcity()">
+  <option>请选择</option>
+</select>
+<label for="city">城市:</label>
+<select name="city" id="city" onChange="getpiecearea()">
+</select>
+<label for="piecearea">县城:</label>
+<select name="piecearea" id="piecearea" >
+</select>
+

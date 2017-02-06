@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>宽带资源覆盖查询</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <meta name="description" content="Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+">
+
+    <link rel="stylesheet" href="//cdn.bootcss.com/weui/0.4.3/style/weui.min.css">
+    <link href="//cdn.bootcss.com/jquery-weui/0.8.2/css/jquery-weui.css" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="http://www.sdmap.gov.cn/api/agsapi/javascript/js/esri/css/esri.css" /> 
+
+</head>
+
+<body ontouchstart>
+
+<header class='demos-header'>
+    <h2 class="demos-title">宽带资源覆盖查询</h2>
+
+
+    <div class="weui_cells weui_cells_form">
+        <div class="weui_cell">
+            <div class="weui_cell_hd"><label for="name" class="weui_label">济宁</label></div>
+            <div class="weui_cell_bd weui_cell_primary">
+                <input class="weui_input" id="find_address" type="text" value="邹城市 郭里镇 东郭村">
+            </div>
+        </div>
+        <div class="weui_cell">
+            <div class="weui_cell_hd"><label for="date" class="weui_label">详情</label></div>
+            <div class="weui_cell_bd weui_cell_primary" id="insert">
+                <input class="weui_input" id="mobile" type="text" value=""/>
+            </div>
+        </div> 
+    <div class="weui_cell">
+            <div class="weui_cell_hd"><label for="map_style" class="demos-title">地图类型</label></div>
+            <div class="weui_cell_ft weui_cell_primary">
+                <a href="javascript:changeToImg()" class="weui_btn weui_btn_mini weui_btn_primary">卫星</a>
+                <a href="javascript:changeToVec()" class="weui_btn weui_btn_mini weui_btn_primary">矢量</a>
+            </div>
+        </div>
+    </div>  
+</header>
+    <div id="mapDiv" style="position:absolute;width:600px; height:500px"> 
+    </div>
+
+<style>
+    .weui_icon_info_circle:before {
+        font-size: 28px;
+        color: #09BB07;
+    }
+</style>
+<script src="//cdn.bootcss.com/jquery/2.1.4/jquery.js"></script>
+
+<script src="//cdn.bootcss.com/jquery-weui/0.8.2/js/jquery-weui.min.js"></script>
+
+<!-- 如果使用了某些拓展插件还需要额外的JS -->
+<script src="//cdn.bootcss.com/jquery-weui/0.8.0/js/swiper.min.js"></script>
+<script src="//cdn.bootcss.com/jquery-weui/0.8.2/js/city-picker.min.js"></script>
+<!--<script src="./js/location.js"></script>-->
+<script src="./js/location_zoucheng.js"></script>
+<script src="./js/fastclick.js"></script>
+<script type="text/javascript" src="http://www.sdmap.gov.cn/api/agsapi/javascript/js/init.js"></script> 
+<link type="text/css" rel="stylesheet" href="http://www.sdmap.gov.cn/api/agsapi/javascript/js/esri/css/esri.css" />
+<script>
+    var json_data;
+    json_data = JSON.parse('["东郭村"]');
+
+    $(document).ready(function () {
+        address = document.getElementById("find_address").value;
+        $.post("getCommunity.php",
+                {
+                    address: address
+                },
+                function (data) {
+                    //json_data = JSON.parse('["a11", "a12", "a13", "a14"]');
+                    json_data = JSON.parse(data);
+                    // var json_data = JSON.parse(data);
+                    console.log(json_data);
+                });
+        $("#mobile").picker({
+            title: "请选择社区名称",
+            cols: [
+                {
+                    textAlign: 'center',
+                    values: json_data
+                }
+            ]
+        });
+
+        $("#find_address").cityPicker({
+            titile: "请选择查询地址",
+            onChange: function (picker, values, displayValues) {
+
+            },
+
+            onClose: function (picker, value, displayValues) {
+                address = document.getElementById("find_address").value;
+                console.log(address);
+                $.post("getCommunity.php",
+                        {
+                            address: address
+                        },
+                        function (data) {
+                            //json_data = JSON.parse('["a11", "a22", "a33", "a44"]');
+                            json_data = JSON.parse(data);
+                            console.log(json_data);
+                            console.log("return data:");
+                            console.log(data);
+                            
+                            $("#mobile").remove();
+                            $("#insert").append('<input class="weui_input" id="mobile" type="text" value=""/>')
+                            $("#mobile").picker({
+                                title: "请选择社区名称",
+                                cols: [
+                                {
+                                    textAlign: 'center',
+                                    values: json_data
+                                }
+                                ],
+                                onClose: function(p, v, d) {
+                              
+                                    address = document.getElementById("find_address").value;
+                                    street = document.getElementById("mobile").value;
+                                    $.post("getCoordinate.php", 
+                                    {
+                                        address: address,
+                                        street: street
+                                        }, 
+                                        function(data)
+                                        {
+                                            coordinate_data = JSON.parse(data);
+                                            console.log(coordinate_data.Longitude);
+                                            console.log(coordinate_data.Latitude);
+                                            setCenterAndZoom();
+                                        }
+                                    );
+                                }
+                            });
+                        });
+            }
+        });
+        //定义地图对象 
+        //var map; 
+        //引入天地图山东矢量图层 
+        require(["esri/map", 
+        "tdlib/SDTDTLayer", 
+        "tdlib/SDRasterLayer", 
+        "tdlib/SDRSAnnoLayer", 
+        "esri/geometry/Extent", 
+        "esri/geometry/Polygon",
+        "esri/SpatialReference",
+        "esri/symbols/SimpleLineSymbol", 
+         "esri/symbols/SimpleFillSymbol", 
+         "esri/Color", 
+         "esri/graphic","dojo/domReady!"  ], 
+         function (Map, SDTDTLayer, SDRasterLayer, SDRSAnnoLayer, Extent,Polygon,SpatialReference, SimpleLineSymbol, SimpleFillSymbol, Color, Graphic) {
+             map = new Map("mapDiv", 
+             { 
+                logo: false, 
+                slider: true, 
+                nav: false, 
+                extent: new Extent({ xmin: 116.5, ymin: 36.2, xmax: 117.5, ymax: 37.2, spatialReference: { wkid: 4490} }) 
+            });
+            var point = new esri.geometry.Point({"x":parseFloat("116.820951"), "y":parseFloat("35.221991"), "spatialReference":{"wkid":4490}});
+            //map.centerAndZoom(new TLngLat(coordinate_data.Longitude, coordinate_data.Latitude), 12)
+            map.centerAndZoom(point, 15);
+            sdvecLayer = new SDTDTLayer(); 
+            map.addLayer(sdvecLayer); 
+            sdimgLayer = new SDRasterLayer(); 
+            sdannoLayer = new SDRSAnnoLayer(); 
+            //map.removeAllLayers(); 
+            map.addLayer(sdimgLayer); 
+            map.addLayer(sdannoLayer); 
+            showObj();
+            var polygon_data;
+            function showObj() {
+                $.post("getPolygon.php", 
+                {
+                    action:"getData"
+                },
+                function(data) {
+                    polygon_data = JSON.parse(JSON.parse(data).RangeArea);
+                    console.log(JSON.parse(data).RangeArea);
+              
+              
+    	        var polygonSymbol = new SimpleFillSymbol( 
+                    SimpleFillSymbol.STYLE_SOLID, 
+                    new SimpleLineSymbol(
+                        SimpleLineSymbol.STYLE_SOLID, 
+                        new Color([0, 0, 255, 0.5]), 
+                        6 
+                    ), 
+                    new Color([0, 0, 255, 0.25]) 
+                ); 
+                var polygon = new Polygon({
+                    "rings": polygon_data,
+                 //   "rings": [[[117.026886463165281, 36.68899221420288], [117.027058124542241, 36.68592376708984],
+                 //   [117.022230148315431, 36.68594522476196], [117.022358894348141, 36.689914894104], 
+                 //   [117.022358894348141, 36.689914894104], [117.026886463165281, 36.68899221420288]], 
+                 //   [[116.97377942610215,35.4031516561787],[116.97377942610215,35.40315702059673],
+                 //   [116.97488449621629,35.40310874083446],[116.97485767412614,35.402534748105275],
+                 //   [116.97373651075792,35.40266885855602],[116.97377942610215,35.4031516561787]], [[]]],
+                    "spatialReference": { 
+                        "wkid": 4490
+                    }
+                }); 
+                console.log(polygon);
+                var graphic = new Graphic(polygon, polygonSymbol) 
+                map.graphics.add(graphic);
+  }
+  );
+            }
+ });
+ });  
+ function setCenterAndZoom() {
+         var point = new esri.geometry.Point({"x":parseFloat(coordinate_data.Longitude), "y":parseFloat(coordinate_data.Latitude), "spatialReference":{"wkid":4490}});
+         //var point = new esri.geometry.Point({"x":parseFloat(coordinate_data.Latitude), "y":parseFloat(coordinate_data.Longitude), "spatialReference":{"wkid":4490}});
+         //var point = new esri.geometry.Point({"x":parseFloat("117.005155"), "y":parseFloat("35.399880"), "spatialReference":{"wkid":4490}});
+         map.centerAndZoom(point, 15);
+         console.log(coordinate_data.Longitude);
+
+         console.log(coordinate_data.Latitude);
+
+     }
+     function changeToVec() {
+            map.removeAllLayers();
+            map.addLayer(sdvecLayer);
+        }
+        function changeToImg() {
+            map.removeAllLayers();
+            map.addLayer(sdvecLayer);
+            map.addLayer(sdimgLayer); 
+            map.addLayer(sdannoLayer); 
+          
+        }
+
+
+
+</script>
+
+</body>
+
+</html>

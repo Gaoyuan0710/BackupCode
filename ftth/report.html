@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FTTH扩容上报查询</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <meta name="description" content="Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+">
+
+    <link rel="stylesheet" href="//cdn.bootcss.com/weui/0.4.3/style/weui.min.css">
+    <link href="//cdn.bootcss.com/jquery-weui/0.8.2/css/jquery-weui.css" rel="stylesheet">
+
+</head>
+
+<body ontouchstart>
+
+<header class='demos-header'>
+    <h2 class="demos-title">FTTH扩容上报查询</h2>
+
+
+    <div class="weui_cells weui_cells_form">
+        <div class="weui_cell">
+            <div class="weui_cell_hd"><label for="name" class="weui_label">济宁</label></div>
+            <div class="weui_cell_bd weui_cell_primary">
+                <input class="weui_input" id="find_address" type="text" value="邹城市 郭里镇 东郭村">
+            </div>
+        </div>
+        <div class="weui_cell">
+            <div class="weui_cell_hd"><label for="date" class="weui_label">小区名称</label></div>
+            <div class="weui_cell_bd weui_cell_primary">
+                <input class="weui_input" id="address" type="text" value=""/>
+            </div>
+        </div> 
+        
+        <div class="weui_cell">
+            <div class="weui_cell_hd"><label for="date" class="weui_label">装机地址</label></div>
+                <input class="weui_input"  type="text" placeholder = "1号楼1单元101为1-1-101" value=""/>
+            </div>
+        </div> 
+        
+        <div class="weui_cell">
+            <div class="weui_cell_hd"><label for="date" class="weui_label">装机联系人</label></div>
+            <div class="weui_cell_bd weui_cell_primary">
+                <input class="weui_input"  type="text" value=""/>
+            </div>
+        </div> 
+        
+        <div class="weui_cell">
+            <div class="weui_cell_hd"><label for="date" class="weui_label">扩容类型</label></div>
+            <div class="weui_cell_bd weui_cell_primary">
+                <input class="weui_input"  id = "extend_type" type="text" value=""/>
+            </div>
+        </div> 
+        
+        <div class="weui_cell" id = "extend_type_insert">
+           <!-- <div class="weui_cell_hd"><label for="date" class="weui_label">其他信息</label></div>
+            <div class="weui_cell_bd weui_cell_primary" id="insert">
+                <input class="weui_input"  type="text" value=""/>
+            </div>-->
+       </div>
+    </div>  
+    <div class="weui_cell">
+           <div class = "weui_cell_ft weui_cell_primary">
+                <a href="javascript:;" class="weui_btn weui_btn_primary">提交</a>
+            </div>
+        </div>
+
+
+</header>
+    <div id="mapDiv" style="position:absolute;width:600px; height:500px"> 
+    </div>
+
+<style>
+    .weui_icon_info_circle:before {
+        font-size: 28px;
+        color: #09BB07;
+    }
+</style>
+<script src="//cdn.bootcss.com/jquery/2.1.4/jquery.js"></script>
+
+<script src="//cdn.bootcss.com/jquery-weui/0.8.2/js/jquery-weui.min.js"></script>
+
+<!-- 如果使用了某些拓展插件还需要额外的JS -->
+<script src="//cdn.bootcss.com/jquery-weui/0.8.0/js/swiper.min.js"></script>
+<script src="//cdn.bootcss.com/jquery-weui/0.8.2/js/city-picker.min.js"></script>
+<script src="./js/location_zoucheng.js"></script>
+<script src="./js/fastclick.js"></script>
+<script>
+    var json_data;
+    json_data = JSON.parse('["东郭村"]');
+
+    $(document).ready(function () {
+        address = document.getElementById("find_address").value;
+        $.post("1.php",
+                {
+                    address: address
+                },
+                function (data) {
+                    json_data = JSON.parse(data);
+                }),
+        $("address").picker({
+            title: "请选择社区名称",
+            cols: [
+                {
+                    textAlign: 'center',
+                    values: json_data
+                }
+            ]
+        });
+
+      $("#extend_type").picker({
+          title:"扩容类型",
+          cols:[
+               {
+                   textAlign: 'center',
+                   values:['端口满', '光交无铅芯', '其他']
+               }
+           ],
+           onClose:function (picker, value, displayValues){
+               type = document.getElementById("extend_type").value;
+               console.log(type);
+               if (type == "其他"){
+                    console.log('sss');
+                    console.log(document.getElementById('flag'));
+                    if (document.getElementById('flag') == null) {
+                        $("#extend_type_insert").append('<div class="weui_cell_hd"><label for="date" class="weui_label">其他信息</label></div><div class="weui_cell_bd weui_cell_primary" id="flag"><input class="weui_input"  type="text" value=""/></div>')
+                    }
+               } 
+            }
+        
+    });
+
+        $("#find_address").cityPicker({
+            titile: "请选择查询地址",
+            onChange: function (picker, values, displayValues) {
+
+            },
+
+            onClose: function (picker, value, displayValues) {
+                address = document.getElementById("find_address").value;
+                console.log(address);
+                $.post("getCommunity.php",
+                        {
+                            address: address
+                        },
+                        function (data) {
+                            json_data = JSON.parse(data);
+                            
+                            $("#address").remove();
+                            $("#insert").append('<input class="weui_input" id="address" type="text" value=""/>')
+                            $("#address").picker({
+                                title: "请选择社区名称",
+                                cols: [
+                                {
+                                    textAlign: 'center',
+                                    values: json_data
+                                }
+                                ],
+                                onClose: function(p, v, d) {
+                              
+                                    address = document.getElementById("find_address").value;
+                                    street = document.getElementById("address").value;
+                                    $.post("getCoordinate.php", 
+                                    {
+                                        address: address,
+                                        street: street
+                                        }, 
+                                        function(data)
+                                        {
+                                            coordinate_data = JSON.parse(data);
+                                        }
+                                    );
+                                }
+                            });
+                        });
+            }
+        });
+  }
+  );
+
+
+</script>
+
+</body>
+
+</html>

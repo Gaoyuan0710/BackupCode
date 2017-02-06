@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>宽带资源覆盖查询</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <meta name="description" content="Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+">
+
+    <link rel="stylesheet" href="//cdn.bootcss.com/weui/0.4.3/style/weui.min.css">
+    <link href="//cdn.bootcss.com/jquery-weui/0.8.2/css/jquery-weui.css" rel="stylesheet">
+</head>
+
+<body ontouchstart>
+
+<header class='demos-header'>
+    <h2 class="demos-title">宽带资源覆盖查询</h2>
+
+
+    <div class="weui_cells weui_cells_form">
+        <div class="weui_cell">
+            <div class="weui_cell_hd"><label for="name" class="weui_label">济宁</label></div>
+            <div class="weui_cell_db weui_cell_primary">
+                <input class="weui_input" id="find_address" type="text" value="高新区 高新区1 高新区11">
+            </div>
+        </div>
+        <div class="weui_cell">
+            <div class="weui_cell_hd"><label for="date" class="weui_label">详情</label></div>
+            <div class="weui_cell_bd weui_cell_primary" id="insert">
+                <input class="weui_input" id="mobile" type="text" value=" "/>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="weui_grids">
+</div>
+
+<div class="demos-header">
+    <h2 class='demos-second-title'>地图展示</h2>
+
+    <p class='demos-sub-title'>地图展示</p>
+</div>
+<div class="weui_cells weui_cells_form">
+    <div class="weui_cell">
+        <div class="weui_cell_bd weui_cell_primary">
+            <input type="text" class="weui_textarea" id='job'/>
+        </div>
+    </div>
+</div>
+
+<div class="weui_grids">
+</div>
+
+
+<style>
+    .weui_icon_info_circle:before {
+        font-size: 28px;
+        color: #09BB07;
+    }
+</style>
+<script src="//cdn.bootcss.com/jquery/2.1.4/jquery.js"></script>
+
+<script src="//cdn.bootcss.com/jquery-weui/0.8.2/js/jquery-weui.min.js"></script>
+
+<!-- 如果使用了某些拓展插件还需要额外的JS -->
+<script src="//cdn.bootcss.com/jquery-weui/0.8.0/js/swiper.min.js"></script>
+<script src="//cdn.bootcss.com/jquery-weui/0.8.2/js/city-picker.min.js"></script>
+<script src="./js/location.js"></script>
+<script src="./js/fastclick.js"></script>
+<script>
+    var json_data;
+    var json_data1;
+    json_data = JSON.parse('["a1", "a2", "a3", "a4"]');
+    new_data = '';
+
+    $(document).ready(function () {
+        $.post("getCommunity.php",
+                {
+                    address: "part"
+                },
+                function (data) {
+                    json_data = JSON.parse('["a11", "a12", "a13", "a14"]');
+                    // var json_data = JSON.parse(data);
+                    console.log(json_data);
+                });
+        $("#mobile").picker({
+            title: "请选择社区名称",
+            cols: [
+                {
+                    textAlign: 'center',
+                    values: json_data
+                }
+            ]
+        });
+
+        $("#find_address").cityPicker({
+            titile: "请选择查询地址",
+            onChange: function (picker, values, displayValues) {
+
+            },
+
+            onClose: function (picker, value, displayValues) {
+                address = document.getElementById("find_address").value;
+                console.log(address);
+                $.post("getCommunity.php",
+                        {
+                            address: "part"
+                        },
+                        function (data) {
+                            json_data = JSON.parse('["a11", "a22", "a33", "a44"]');
+                            console.log(json_data);
+                            $("#mobile").remove();
+                            $("#insert").append('<input class="weui_input" id="mobile" type="text" value=" "/>')
+                            $("#mobile").picker({
+                                title: "请选择社区名称",
+                                cols: [
+                                    {
+                                        textAlign: 'center',
+                                        values: json_data
+                                    }
+                                ]
+                            });
+                        });
+
+//                $("#mobile").picker({
+//                    title: "请选择社区名称",
+//                    cols: [
+//                        {
+//                            textAlign: 'center',
+//                            values: json_data
+//                        }
+//                    ]
+//                });
+//                $("#mobile").picker("setValue", new_data);
+            }
+        });
+
+    });
+
+
+    //      $("#mobile").picker("setValue", ["iphone", "apple"]);
+    //       $("#mobile").picker({
+    //           title: "请选择社区名称",
+    //           cols: [
+    //         {
+    //             textAlign: 'center',
+    //             //values: ['iPhone 4', 'iPhone 4S', 'iPhone 5', 'iPhone 5S', 'iPhone 6', 'iPhone 6 Plus', 'iPad 2', 'iPad Retina', 'iPad Air', 'iPad mini', 'iPad mini 2', 'iPad mini 3']
+    //             values: json_data
+    //        //values: str
+    //         }
+    //         ],
+    //         onChange: function(p, v, dv) {
+    //             console.log(p, v, dv);
+    //         },
+    //         onClose: function(p, v, d) {
+    //             console.log(p, v, d);
+    //         }
+    //
+    //       });
+    //
+    //       $("#mobile").picker("setValue", ["iPhone 4", "iPhone 5"]);
+    //        $("#mobile").picker({
+    //        title: "请选择您的手机",
+    //        cols: [
+    //          {
+    //            textAlign: 'center',
+    //            values: ['iPhone 4', 'iPhone 4S', 'iPhone 5', 'iPhone 5S', 'iPhone 6', 'iPhone 6 Plus', 'iPad 2', 'iPad Retina', 'iPad Air', 'iPad mini', 'iPad mini 2', 'iPad mini 3']
+    //          }
+    //        ],
+    //        onChange: function(p, v, dv) {
+    //          console.log(p, v, dv);
+    //        },
+    //        onClose: function(p, v, d) {
+    //          console.log("close");
+    //        }
+    //      });
+    //      $("#name").picker({
+    //        title: "城市信息",
+    //        cols: [
+    //          {
+    //            textAlign: 'center',
+    //            values: ['高新区', '嘉祥县', '金乡县', '梁山县', '曲阜市', '任城区', '市中区', '微山县', '鱼台县', '邹城市', '兖州市', '汶上县', '泗水县']
+    //          },
+    //          {
+    //            textAlign: 'center',
+    //            values: ['高新区', '嘉祥县', '金乡县', '梁山县', '曲阜市', '任城区', '市中区', '微山县', '鱼台县', '邹城市', '兖州市', '汶上县', '泗水县']
+    //          }
+    //        ]
+    //      });
+    //      $("#inline").picker({
+    //        container: '#picker-container',
+    //        cols: [
+    //          {
+    //            textAlign: 'center',
+    //            values: ['', 'iPhone 4S', 'iPhone 5', 'iPhone 5S', 'iPhone 6', 'iPhone 6 Plus', 'iPad 2', 'iPad Retina', 'iPad Air', 'iPad mini', 'iPad mini 2', 'iPad mini 3']
+    //          }
+    //        ],
+    //
+    //    });
+
+</script>
+</body>
+
+</html>

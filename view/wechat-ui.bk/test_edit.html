@@ -1,0 +1,331 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" /> 
+    <meta name="keywords" content="天地图山东" /> 
+    <title>天地图山东地图API－示例－数据采集</title> <link rel="stylesheet" href="http://www.sdmap.gov.cn/api/agsapi/javascript/js/esri/css/esri.css"/> 
+     <link rel="stylesheet" href="http://www.sdmap.gov.cn/api/agsapi/javascript/js/dijit/themes/claro/claro.css"/> 
+     <style type="text/css"> 
+  <!--    控制infowidow最大化和关闭按钮不显示 
+     .esriPopup .titleButton.close {   
+     display: none;   
+     }  
+--> 
+    .esriPopup .titleButton.maximize {   
+     display: none;   
+     }   
+    </style> 
+    <script type="text/javascript" src="./js/scale.fix.js"></script> 
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/1.6.3/jquery.js"></script>
+    <script  type="text/javascript" src="http://www.sdmap.gov.cn/api/agsapi/javascript/js/init.js"></script> 
+    <script> 
+        var map, tb,ctxMenuForGraphics,selected; 
+        var markerSymbol,editToolbar; 
+        var tempp = 0, handler; 
+ 
+        require([ 
+        "esri/map", "esri/toolbars/draw", 
+        "tdlib/SDTDTLayer", "esri/geometry/Extent", 
+        "esri/toolbars/edit", 
+        "esri/geometry/Polygon",
+        "esri/SpatialReference",  
+        "esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleLineSymbol", 
+        "esri/symbols/SimpleFillSymbol", "esri/symbols/CartographicLineSymbol", 
+        "esri/graphic", "dijit/Menu", "dijit/MenuItem", "dijit/MenuSeparator", 
+        "esri/Color", "dojo/dom", "dojo/on", "dojo/domReady!" 
+      ], function ( Map, Draw, SDTDTLayer, Extent, Edit, Polygon, SpatialReference, SimpleMarkerSymbol, SimpleLineSymbol,  SimpleFillSymbol, CartographicLineSymbol, Graphic, Menu, MenuItem, MenuSeparator, Color, dom, on) { 
+ 
+          //地图初始化 
+          map = new Map("mapDiv", 
+         { 
+             logo: false, 
+             slider: false, 
+             nav: false, 
+             extent: new Extent({ xmin: 116.5, ymin: 36.2, xmax: 117.5, ymax: 37.2, spatialReference: { wkid: 4490} }) 
+         }); 
+          //图层初始化 
+          var sdvecLayer = new SDTDTLayer(); 
+          //添加图层到地图 
+          map.addLayer(sdvecLayer); 
+          //禁止双击放大 
+          map.disableDoubleClickZoom(); 
+ 
+          editToolbar = new Edit(map); 
+          createGraphicsMenu(); 
+          editToolbar.deactivate();
+          showObj();
+
+         function showObj() {
+           var polygonSymbol = new SimpleFillSymbol( 
+           SimpleFillSymbol.STYLE_SOLID, 
+           new SimpleLineSymbol( 
+                   SimpleLineSymbol.STYLE_SOLID, 
+             new Color([0, 0, 255, 0.5]), 
+             6 
+           ), 
+           new Color([0, 0, 255, 0.25]) 
+         );
+
+       var polygon = new Polygon({ 
+          "rings": [[[117.026886463165281, 36.68899221420288], [117.027058124542241, 36.68592376708984], 
+            [117.022230148315431, 36.68594522476196], [117.022358894348141, 36.689914894104], 
+            [117.022358894348141, 36.689914894104], [117.026886463165281, 36.68899221420288]], [[116.97377942610215,35.4031516561787],[116.97377942610215,35.40315702059673],[116.97488449621629,35.40310874083446],[116.97485767412614,35.402534748105275],[116.97373651075792,35.40266885855602],[116.97377942610215,35.4031516561787]], [[]]], 
+
+           "spatialReference": { 
+               "wkid": 4490 
+           } 
+    }); 
+     //   var polygon = new Polygon({
+     //   "rings": [
+     //       [
+     //           [
+     //               116.97377942610215,
+     //               35.4031516561787
+     //           ],
+     //           [
+     //               116.97377942610215,
+     //               35.40315702059673
+     //           ],
+     //           [
+     //               116.97488449621629,
+     //               35.40310874083446
+     //           ],
+     //           [
+     //               116.97485767412614,
+     //               35.402534748105275
+     //           ],
+     //           [
+     //               116.97373651075792,
+     //               35.40266885855602
+     //           ],
+     //           [
+     //               116.97377942610215,
+     //               35.4031516561787
+     //           ]
+     //       ]
+     //   ],
+     //   "spatialReference": {
+     //       "wkid": 4490
+     //   }
+    //});
+
+       var graphic = new Graphic(polygon, polygonSymbol) 
+
+
+
+
+       map.graphics.add(graphic); 
+
+         }; 
+ 
+          function createGraphicsMenu() { 
+              ctxMenuForGraphics = new Menu({}); 
+              ctxMenuForGraphics.addChild(new MenuItem({ 
+                  label: "编辑", 
+                  onClick: function () { 
+                      if (selected.geometry.type !== "point") { 
+                          editToolbar.activate(Edit.EDIT_VERTICES, selected); 
+                      } else { 
+                          alert("待实现"); 
+                      } 
+                  } 
+              })); 
+              ctxMenuForGraphics.addChild(new MenuItem({ 
+                  label: "保存", 
+                  onClick: function () { 
+                      editToolbar.deactivate(); 
+                  } 
+              })); 
+              ctxMenuForGraphics.addChild(new MenuItem({ 
+                  label: "移动", 
+                  onClick: function () { 
+                      editToolbar.activate(Edit.MOVE, selected); 
+                  } 
+              })); 
+ 
+              ctxMenuForGraphics.addChild(new MenuItem({ 
+                  label: "旋转/缩放", 
+                  onClick: function () { 
+                      if (selected.geometry.type !== "point") { 
+                          editToolbar.activate(Edit.ROTATE | Edit.SCALE, selected); 
+                      } else { 
+                          alert("待实现"); 
+                      } 
+                  } 
+              })); 
+ 
+ 
+ 
+              ctxMenuForGraphics.addChild(new MenuSeparator()); 
+              ctxMenuForGraphics.addChild(new MenuItem({ 
+                  label: "删除", 
+                  onClick: function () { 
+                      map.graphics.remove(selected); 
+                  } 
+              })); 
+ 
+              ctxMenuForGraphics.startup(); 
+ 
+              map.graphics.on("mouse-over", function (evt) { 
+                  selected = evt.graphic; 
+                  ctxMenuForGraphics.bindDomNode(evt.graphic.getDojoShape().getNode()); 
+              }); 
+ 
+              map.graphics.on("mouse-out", function (evt) { 
+                  ctxMenuForGraphics.unBindDomNode(evt.graphic.getDojoShape().getNode()); 
+              }); 
+ 
+ 
+          } 
+ 
+ 
+ 
+          initToolbar(); 
+          markerSymbol = new esri.symbol.SimpleMarkerSymbol(esri.symbol.SimpleMarkerSymbol.STYLE_SQUARE, 10, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255, 0, 0]), 1), new dojo.Color([0, 255, 0, 0.25])); 
+ 
+          var lineSymbol = new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASH, new dojo.Color([255, 0, 0]), 3); 
+ 
+ 
+          var fillSymbol = new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASHDOT, new dojo.Color([255, 0, 0]), 2), new dojo.Color([255, 255, 0, 0.25])); 
+ 
+          function initToolbar() { 
+              tb = new Draw(map); 
+              tb.on("draw-end", addGraphic); 
+ 
+ 
+              on(dom.byId("info"), "click", function (evt) { 
+                  if (evt.target.id === "info") { 
+                      return; 
+                  } 
+                  else if (evt.target.id === "clear") { 
+                      map.graphics.clear(); 
+                  } 
+                  var tool = evt.target.id.toLowerCase(); 
+                  map.disableMapNavigation(); 
+                  tb.activate(tool); 
+              }); 
+          } 
+ 
+          function addGraphic(evt) { 
+ 
+              //deactivate the toolbar and clear existing graphics  
+              tb.deactivate(); 
+              map.enableMapNavigation(); 
+              var mp; 
+              // figure out which symbol to use 
+              var symbol; 
+              if (evt.geometry.type === "point") { 
+                  symbol = markerSymbol; 
+                  mp = evt.geometry; 
+                  tempp = 0; 
+              } else if (evt.geometry.type === "polyline") { 
+                  symbol = lineSymbol; 
+                  mp = evt.geometry.getPoint(0, 0); 
+                  tempp = 1; 
+              } 
+              else { 
+                  symbol = fillSymbol; 
+                  mp = evt.geometry.getExtent().getCenter(); 
+                  tempp = 1; 
+              } 
+ 
+              map.graphics.add(new Graphic(evt.geometry, symbol)); 
+ 
+              map.infoWindow.setTitle("请填写标注信息内容："); 
+              var index = map.graphics.graphics.length - 1; 
+              var content = "<div>名称：<input type='text' id='nameText' name='nameText' /></div〉<br/>  <br/><br/><div>类型：<input type='text' id='ptype' name='ptype' /></div>   <br/><div>描述：<input type='text' id='decrib' name='decrib' /></div>   <br/><div style='text-align:center'><input type='button' name='Submit' value='保 存' onclick=finash('" + index + "') />&nbsp;&nbsp;&nbsp;&nbsp;<input type='button' name='Submit' value='取 消' onclick=cancel('" + index + "') /></div>"; 
+              map.infoWindow.setContent(content); 
+              //显示信息窗口隐藏事件 
+              handler = map.infoWindow.on("hide", function () { 
+                   
+                      for (var i = 0; i < map.graphics.graphics.length; i++) { 
+                          var cgraphic = map.graphics.graphics[index]; 
+                          map.graphics.remove(cgraphic); 
+                      }  
+                   
+              }); 
+              //信息窗口显示事件  
+              //              map.infoWindow.on("show", showInfoWindow);  
+              //信息窗口最大化事件 
+              //              map.infoWindow.on("maximize", function () { alert(1) }); 
+              //信息窗口最小化事件 
+              //              map.infoWindow.on("restore", function () { alert(2) }); 
+ 
+              map.infoWindow.show(mp); 
+ 
+ 
+          } 
+ 
+      }); 
+      function finash(index) { 
+           
+          //获取输入的名字 
+          var titleStr = dojo.byId('nameText').value; 
+          var titletype = dojo.byId('ptype').value; 
+          var titledecrib = dojo.byId('decrib').value; 
+          //获取当前所画的图形 
+          var cgraphic = map.graphics.graphics[index]; 
+          var font = new esri.symbol.Font("18px", esri.symbol.Font.STYLE_NORMAL, esri.symbol.Font.VARIANT_NORMAL, esri.symbol.Font.WEIGHT_BOLDER); 
+          var attr = { "name": titleStr, "titletype": titletype, "titledecrib": titledecrib }; 
+          var infoTemplate = new esri.InfoTemplate(titleStr, "名称: ${name} <br/> 类型: ${titletype}<br/>描述: ${titledecrib}"); 
+          if (tempp == 0) { 
+              var textSymbol = new esri.symbol.TextSymbol(titleStr, font, new dojo.Color([255, 51, 51])); 
+              textSymbol.yoffset = 8; 
+              map.graphics.add(new esri.Graphic(cgraphic.geometry, textSymbol)); 
+              
+               
+               
+              var graphic = new esri.Graphic(cgraphic.geometry, markerSymbol, attr, infoTemplate); 
+              map.graphics.add(graphic); 
+              map.graphics.remove(cgraphic); 
+          } 
+          //设置图形的属性，id、title 
+          cgraphic.attributes = attr; 
+          cgraphic.infoTemplate = infoTemplate; 
+          //获取当前所画图形的json字符串用来保存 
+          var graphicStr = dojo.toJson(cgraphic.toJson());
+          console.log(graphicStr);
+          //设置ajax请求的参数 
+          var params = { graphic: graphicStr } 
+          //可以将标注信息发送到客户端 
+          handler.remove(); 
+          //隐藏infoWindow 
+          map.infoWindow.hide(); 
+      } 
+      //infoWindow中取消按钮的事件 
+      function cancel(index) { 
+//          for (var i = 0; i < map.graphics.graphics.length; i++) { 
+//              var cgraphic = map.graphics.graphics[index]; 
+//              map.graphics.remove(cgraphic); 
+//          } 
+          map.infoWindow.hide(); 
+      } 
+
+
+    </script> 
+</head> 
+<body class="claro" style="font-size: 0.75em;"> 
+      
+        <div id="mapDiv" style="position:absolute;width:600px; height:500px"> 
+        </div> 
+        <div style="position:absolute;left:650px;">  
+             点击所要采集数据类型,在地图上添加标注<br /> 
+            
+            <div id="info"> 
+                 
+                <button id="Point"> 
+                    点标注</button> 
+                <button id="Polyline"> 
+                   线标注</button> 
+                <button id="Polygon"> 
+                    多边形</button> 
+              <button id="clear"> 
+                    清除</button> 
+            </div>    <p><a href="http://www.sdmap.gov.cn/api/agsapi/examples.html">返回所有范例列表</a></p> 
+      
+          
+          
+    </div> 
+</body> 
+</html> 
+

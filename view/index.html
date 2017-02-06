@@ -1,0 +1,85 @@
+<!doctype html>
+
+<html>
+<head> 
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" /> 
+    <meta name="keywords" content="天地图山东" /> 
+    <title>天地图山东地图API－示例－切换地图类型</title>   
+    
+    <link type="text/css" rel="stylesheet" href="http://www.sdmap.gov.cn/api/agsapi/javascript/js/esri/css/esri.css" /> 
+    <script type="text/javascript" src="http://www.sdmap.gov.cn/api/agsapi/javascript/js/init.js"></script> 
+    <script type="text/javascript"> 
+        //定义地图对象 
+        var map; 
+        //引入天地图山东矢量图层 
+        require(["esri/map", "tdlib/SDTDTLayer", "tdlib/SDRasterLayer", "tdlib/SDRSAnnoLayer", "esri/geometry/Extent", "dojo/domReady!"  ], 
+    function (Map, SDTDTLayer, SDRasterLayer, SDRSAnnoLayer, Extent) { 
+        //地图初始化 
+        map = new Map("mapDiv", 
+         { 
+             logo: false, 
+             slider: true, 
+             nav: false, 
+             extent: new Extent({ xmin: 116.5, ymin: 36.2, xmax: 117.5, ymax: 37.2, spatialReference: { wkid: 4490} }) 
+         }); 
+ 
+        //矢量图层初始化 
+        var sdvecLayer = new SDTDTLayer(); 
+        //添加图层到地图 
+        map.addLayer(sdvecLayer); 
+ 
+        //影像图层初始化 
+        var sdimgLayer = new SDRasterLayer(); 
+        //注记图层初始化 
+        var sdannoLayer = new SDRSAnnoLayer(); 
+        
+        map.removeAllLayers(); 
+    
+        map.addLayer(sdimgLayer); 
+    
+        map.addLayer(sdannoLayer); 
+      
+ 
+        document.getElementById("vec").onclick = switchVecLayer; 
+        document.getElementById("img").onclick = switchImgLayer; 
+        document.getElementById("vecimg").onclick = switchVecImgLayer; 
+ 
+ 
+        function switchVecLayer() { 
+            map.removeAllLayers(); 
+            map.addLayer(sdvecLayer); 
+        } 
+        function switchImgLayer() { 
+            map.removeAllLayers(); 
+            map.addLayer(sdimgLayer); 
+        } 
+        function switchVecImgLayer() { 
+            map.removeAllLayers(); 
+            map.addLayer(sdimgLayer); 
+            map.addLayer(sdannoLayer); 
+        } 
+ 
+    }); 
+ 
+     
+ 
+  
+    </script> 
+</head> 
+<body> 
+      
+        <div id="mapDiv" style="position:absolute;width:600px; height:500px"> 
+        </div> 
+        <div style="position:absolute;left:650px;">  
+            <!--   切换地图类型<br /> -->
+       <!--     <input type="button" id="vec" value="矢量" /> 
+            <input type="button" id="img" value="影像" /> 
+            <input type="button" id="vecimg" value="混合" /> 
+        <p><a href="http://www.sdmap.gov.cn/api/agsapi/examples.html">返回所有范例列表</a></p> 
+        -->
+          
+          
+    </div> 
+</body> 
+</html> 
+

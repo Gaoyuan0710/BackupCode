@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>jQuery UI 自动完成（Autocomplete） - 自定义数据并显示</title>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+<script src="//code.jquery.com/jquery-1.9.1.js"></script>
+<script src="//cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css">
+</head>
+<script>
+    $("#txtJigou").autocomplete({
+        source: function(request, response ) {
+            $.ajax({
+                url: "../getCommunity.php",
+                dataType: "json",
+                data: {
+                    "name": "中","typeid":"11"
+                },
+                success: function( data1 ) {
+                    console.log(temp_data.data);    
+                    console.log("sss");    
+                    if(temp_data.state==1) {
+                        response(temp_data.data);
+                    }
+                }
+            });
+        },
+        minLength:1,
+        autoFocus:true,
+        focus: function( event, ui ) {
+            $( "#txtJigou" ).val( ui.item.company );
+            return false;
+        },
+        select: function( event, ui ) {
+            $( "#txtJigou" ).val( ui.item.company );
+            return false;
+        }
+    }).autocomplete( "instance" )._renderItem = function( ul, item ) {
+        return $( "<li>" )
+        .append( "<a>" + item.company + "<br>" + item.desc + "</a>" )
+        .appendTo( ul );
+    };
+</script>
+<body>
+<input type="text" class="inputTxt" id="txtJigou" autocomplete="off"/>
+</body>
+
+</html>
